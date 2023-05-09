@@ -1,9 +1,7 @@
-
 from rdkit import Chem  # To extract information of the molecules
 import numpy as np
 import torch
 from torch_geometric.data import Data
-
 
 
 def one_hot_encoding(x, permitted_list):
@@ -15,7 +13,7 @@ def one_hot_encoding(x, permitted_list):
     return binary_encoding    
 
 
-# Atom featurisation\
+#### Atom featurisation ####
 # Currently generates ca. 80 node features
 def get_atom_features(atom, use_chirality = True, hydrogens_implicit = True):
     # list of permitted atoms
@@ -35,13 +33,14 @@ def get_atom_features(atom, use_chirality = True, hydrogens_implicit = True):
     
     is_aromatic_enc = one_hot_encoding(int(atom.GetIsAromatic()), [0, 1])
     
-    atomic_mass_scaled = [float(atom.GetMass() - 10.812)/116.092] # (?) replace 10.812 with mean the and 116.092 with std
+    #Remove the numerical features, since they do not seem to add sufficient information
+    # atomic_mass = [float(atom.GetMass())] # information contained in atom_type
     
-    vdw_radius_scaled = [float((Chem.GetPeriodicTable().GetRvdw(atom.GetAtomicNum()) - 1.5)/0.6)] # (?) replace 1.5 with mean the and 0.6 with std
+    # vdw_radius = [float((Chem.GetPeriodicTable().GetRvdw(atom.GetAtomicNum())))] 
     
-    covalent_radius_scaled = [float((Chem.GetPeriodicTable().GetRcovalent(atom.GetAtomicNum()) - 0.64)/0.76)] # (?) replace 0.64 with mean the and 0.76 with std
+    # covalent_radius = [float((Chem.GetPeriodicTable().GetRcovalent(atom.GetAtomicNum())]
                               
-    atom_feature_vector = atom_type_enc + n_heavy_neighbors + formal_charge_enc + hybridisation_type_enc + is_in_ring_enc + is_aromatic_enc + atomic_mass_scaled + vdw_radius_scaled + covalent_radius_scaled
+    atom_feature_vector = atom_type_enc + n_heavy_neighbors + formal_charge_enc + hybridisation_type_enc + is_in_ring_enc + is_aromatic_enc 
     
     if use_chirality:
         chirality_type_enc = one_hot_encoding(str(atom.GetChiralTag()), ["CHI_UNSPECIFIED", "CHI_TETRAHEDRAL_CW", "CHI_TETRAHEDRAL_CCW", "CHI_OTHER"])
@@ -51,10 +50,13 @@ def get_atom_features(atom, use_chirality = True, hydrogens_implicit = True):
         n_hydrogens_enc = one_hot_encoding(int(atom.GetTotalNumHs()), [0, 1, 2, 3, 4, "MoreThanFour"])
         atom_feature_vector += n_hydrogens_enc
         
+    # atom_feature_vector += atomic_mass + vdw_radius + covalent_radius
+        
     return np.array(atom_feature_vector) 
 
 
-# Bond Featurisation\
+##### Bond Featurisation #####
+
 # Currently generates ca. 10 edge features
 def get_bond_features(bond, use_stereochemistry=True):
     permitted_bond_types = [Chem.rdchem.BondType.SINGLE, Chem.rdchem.BondType.DOUBLE, 
@@ -81,7 +83,7 @@ def create_graph_dataset_from_smiles(x_smiles, y):
     # x_smiles = [smiles_1, smiles_2, ...], smiles representation of molecules
     # y = [y_1, y_2, ...] list of numerical labels for each smiles string, here chemical properties
     
-    # Outputs:
+    ## Outputs:
     # dataset = [data_1, data_2, ...] list of torch_geometric.data.Data objects representing molecular graphs
     
     dataset = []
