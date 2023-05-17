@@ -20,4 +20,17 @@ def get_data_split_indices(num_samples, val_share, test_share):
     test_indices = indices[int((train_share + val_share) * num_samples):]
     
     return train_indices, val_indices, test_indices
+
+def scale_targets(train_targets:np.ndarray, val_targets:np.ndarray, test_targets:np.ndarray):
     
+    mean = np.mean(train_targets, axis=0)
+    std = np.std(train_targets, axis=0)
+    
+    scaler_targets = [mean, std]
+    
+    for col in range(train_targets.shape[1]):
+        train_targets[:,col] = (train_targets[:,col] - mean[col]) / std[col]
+        val_targets[:,col] = (val_targets[:,col] - mean[col]) / std[col]
+        test_targets[:,col] = (test_targets[:,col] - mean[col]) / std[col]
+    
+    return train_targets, val_targets, test_targets, scaler_targets
