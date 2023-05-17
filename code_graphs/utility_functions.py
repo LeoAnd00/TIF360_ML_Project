@@ -35,3 +35,38 @@ def scale_targets(train_targets:np.ndarray, val_targets:np.ndarray, test_targets
         test_targets[:,col] = (test_targets[:,col] - mean[col]) / std[col]
     
     return train_targets, val_targets, test_targets, scaler_targets
+
+def load_molecular_features(mode):
+    
+    rdkit_descriptors = np.load('../data/mol_descriptors.npy')
+    morgan_fingerprints = np.load('../data/mol_morgan_fingerprints.npy')
+    mordred_descriptors = np.load('../data/Mordred_mol_descriptors.npy')
+    
+    
+    return_len = 0
+    if "rdkit" in mode and "mordred" in mode:
+        descriptors = np.concatenate((rdkit_descriptors, mordred_descriptors), axis=1)
+        return_len += 1
+    elif "mordred" in mode:
+        descriptors = mordred_descriptors
+        return_len += 1
+    elif "rdkit" in mode:
+        descriptors = rdkit_descriptors
+        return_len += 1
+    
+    if "morgan" in mode:
+        fingerprints = morgan_fingerprints
+        return_len += 1
+        
+    if return_len == 1:
+        if "morgan" in mode:
+            features = fingerprints
+            return features
+        else:
+            features = descriptors
+            return features
+    elif return_len == 2:
+        features = np.concatenate((descriptors, fingerprints), axis=1)
+        return features
+    
+        
