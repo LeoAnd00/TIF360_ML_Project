@@ -12,7 +12,8 @@ def get_data_split_indices(num_samples, val_share, test_share):
     train_share = 1 - val_share - test_share
     
     indices = np.arange(num_samples)
-    np.random.seed(42)
+    # np.random.seed(2)
+    np.random.seed(12345)
     np.random.shuffle(indices)
     
     train_indices = indices[:int(train_share * num_samples)]
