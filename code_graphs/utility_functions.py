@@ -36,6 +36,20 @@ def scale_targets(train_targets:np.ndarray, val_targets:np.ndarray, test_targets
     
     return train_targets, val_targets, test_targets, scaler_targets
 
+def scale_features(train_features:np.ndarray, val_features:np.ndarray, test_features:np.ndarray):
+    
+    min = np.min(train_features, axis=0)
+    max = np.max(train_features, axis=0)
+    
+    scaler_features = [min, max]
+    
+    for col in range(train_features.shape[1]):
+        train_features[:,col] = (train_features[:,col] - min[col]) / (max[col] - min[col])
+        val_features[:,col] = (val_features[:,col] - min[col]) / (max[col] - min[col])
+        test_features[:,col] = (test_features[:,col] - min[col]) / (max[col] - min[col])
+        
+    return train_features, val_features, test_features, scaler_features
+
 def load_molecular_features(mode):
     
     rdkit_descriptors = np.load('../data/mol_descriptors.npy')
