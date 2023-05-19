@@ -127,3 +127,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Molecule Descriptor file
+data/mol_descriptors.npy
+mol_morgan_fingerprints.npy
