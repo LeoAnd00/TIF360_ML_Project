@@ -51,35 +51,35 @@ def define_GNN_structure(num_layers, hidden_channels, feature_dim, target_dim, d
             edge_attr.to(device)   
             x = self.conv1(x, edge_index, edge_attr)
             x = self.conv1_norm(x)
-            x = F.relu(x)
+            x = F.leaky_relu(x)
             if num_layers > 1:
                 x = self.conv2(x, edge_index, edge_attr)
                 x = self.conv2_norm(x)
-                x = F.relu(x)
+                x = F.leaky_relu(x)
             if num_layers > 2:
                 x = self.conv3(x, edge_index, edge_attr)
                 x = self.conv3_norm(x)
-                x = F.relu(x)
+                x = F.leaky_relu(x)
             if num_layers > 3:
                 x = self.conv4(x, edge_index, edge_attr)
                 x = self.conv4_norm(x)
-                x = F.relu(x)
+                x = F.leaky_relu(x)
             if num_layers > 4:
                 x = self.conv5(x, edge_index, edge_attr)
                 x = self.conv5_norm(x)
-                x = F.relu(x)
+                x = F.leaky_relu(x)
             if num_layers > 5:
                 x = self.conv6(x, edge_index, edge_attr)
                 x = self.conv6_norm(x)
-                x = F.relu(x)
+                x = F.leaky_relu(x)
             if num_layers > 6:
                 x = self.conv7(x, edge_index, edge_attr)
                 x = self.conv7_norm(x)
-                x = F.relu(x)
+                x = F.leaky_relu(x)
             if num_layers > 7:
                 x = self.conv8(x, edge_index, edge_attr)
                 x = self.conv8_norm(x)
-                x = F.relu(x)
+                x = F.leaky_relu(x)
 
             #Returns batch-wise graph-level-outputs by averaging node features across the node dimension, so that for a single graph G
             #its output is computed by
@@ -87,12 +87,12 @@ def define_GNN_structure(num_layers, hidden_channels, feature_dim, target_dim, d
             
             x = self.lin1(x)
             x = self.lin1_norm(x)
-            x = F.relu(x)
+            x = F.leaky_relu(x)
             x = F.dropout(x, p=0.2, training=self.training)
             
             x = self.lin2(x)
             x = self.lin2_norm(x)
-            x = F.relu(x)
+            x = F.leaky_relu(x)
             
             x = self.lin3(x)
             
