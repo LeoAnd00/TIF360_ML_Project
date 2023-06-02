@@ -21,7 +21,7 @@ def create_encoded_vector(input, dictionary,maxTokenLength):
 
 
 
-## CLASSES AND LAYERS
+## CLASSES AND LAYERS #################################
 
 import math
 import torch
@@ -75,4 +75,53 @@ class TransformerLayer(torch.nn.Module):
         x = self.Norm2(x + addNormX)
 
  
+        return x
+    
+
+
+class TransformerNetwork(torch.nn.Module):
+    def __init__(self,hidden_channels,output_dim, vocab_size, embedding_dim, num_heads, maxTokenLength,
+                  nDescriptors,nFingerprints, useDescriptors, useFingerprints):
+        super().__init__()
+        # Embedd and add pos encoding to input
+        self.dropout_rate = 0.15
+        self.EmbeddingLayer = torch.nn.Embedding(num_embeddings=vocab_size,embedding_dim = embedding_dim , max_norm=True)
+        self.PositionalEncoding = PositionalEncoding(embedding_dim, maxTokenLength, dropout = self.dropout_rate)
+
+        self.TransEnc1 = TransformerLayer(embedding_dim,hidden_channels, num_heads, self.dropout_rate)
+        self.TransEnc2 = TransformerLayer(embedding_dim,hidden_channels, num_heads, self.dropout_rate)
+        self.TransEnc3 = TransformerLayer(embedding_dim,hidden_channels, num_heads, self.dropout_rate)
+        self.Pooling = torch.nn.AvgPool1d(kernel_size = maxTokenLength)
+
+        self.DenseOut1 = torch.nn.Linear(embedding_dim+nDescriptors+nFingerprints,hidden_channels)
+        self.DenseOut2 = torch.nn.Linear(hidden_channels,output_dim)
+        self.relu = torch.nn.ReLU()
+
+        self.useDescriptors = useDescriptors
+        self.useFingerprints = useFingerprints
+
+
+    def forward(self,x,descriptors,fingerprints):
+        x = self.EmbeddingLayer(x)
+        x = self.PositionalEncoding(x)
+        x = self.TransEnc1(x)
+        x = self.TransEnc2(x)
+        x = self.TransEnc3(x)
+        # Permute so 22 dimension is compressed
+        x = self.Pooling(x.permute((0,2,1))).permute((0,2,1))
+        x = torch.squeeze(x,axis=1)
+        if self.useDescriptors and self.useFingerprints:
+            x = torch.cat((x,descriptors,fingerprints),1)
+        elif self.useDescriptors:
+            x = torch.cat((x,descriptors),1)
+        elif self.useFingerprints:
+            x = torch.cat((x,fingerprints),1)
+        
+        #x = x[:,-1,:]
+
+
+        x = self.DenseOut1(x)
+        x = self.relu(x)
+        x = self.DenseOut2(x)
+        
         return x
