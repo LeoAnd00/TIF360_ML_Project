@@ -49,3 +49,30 @@ class PositionalEncoding(nn.Module):
         #                  requires_grad=False)
         x = x + self.pe[:x.size(0), :].detach()
         return self.dropout(x)
+
+
+class TransformerLayer(torch.nn.Module):
+    def __init__(self, embedding_dim, hidden_channels,num_heads, dropout_rate):
+        super().__init__()
+        self.Attention = torch.nn.MultiheadAttention(embedding_dim,num_heads=num_heads,dropout=dropout_rate)
+        self.Norm1 = torch.nn.LayerNorm(embedding_dim)
+        self.Dense1 = torch.nn.Linear(embedding_dim,hidden_channels)
+        self.relu = torch.nn.ReLU()
+        self.Dense2 = torch.nn.Linear(hidden_channels,embedding_dim)
+        
+
+        self.Norm2 = torch.nn.LayerNorm(embedding_dim)
+        
+
+    def forward(self, x):
+        addNormX = x
+        x, _ = self.Attention(x,x,x)
+        x = self.Norm1(x + addNormX)
+        addNormX = x
+        x = self.Dense1(x)
+        x = self.relu(x)
+        x = self.Dense2(x)
+        x = self.Norm2(x + addNormX)
+
+ 
+        return x
