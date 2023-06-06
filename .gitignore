@@ -131,3 +131,4 @@ dmypy.json
 # Molecule Descriptor file
 data/mol_descriptors.npy
 mol_morgan_fingerprints.npy
+data/Mordred_mol_descriptors
