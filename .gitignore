@@ -132,3 +132,14 @@ dmypy.json
 data/mol_descriptors.npy
 mol_morgan_fingerprints.npy
 data/Mordred_mol_descriptors
+data/Mordred_mol_descriptors.npy
+
+data/smiles_and_targets_raw.csv
+
+data/smiles_and_targets.csv
+
+figures/targets_after_scaling.png
+
+figures/targets_before_scaling.png
+
+figures/targets_no_outliers.png
